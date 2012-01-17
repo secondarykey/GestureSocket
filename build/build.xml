@@ -1,18 +1,20 @@
-
-<project name="HogeBuild" default="makeJar" basedir="../">
-	
+<project name="GestureSocket" default="makeJar" basedir="../">
 
 	<path id="build-classpath">
 	    <fileset dir="lib">
 	        <include name="*.jar"/>
 	    </fileset>
 	</path>
+	
 	<manifestclasspath property="lib.list" jarfile="bin/gs.jar">
 	    <classpath refid="build-classpath"/>
 	</manifestclasspath>
 	
 	<target name="makeJar" description="JARファイル作成">
-		<jar basedir="classes" jarfile="bin/gs.jar">
+		<copy file="Config.xml" todir="./bin" overwrite="true"/>
+		<copy file="index.html" todir="./bin" overwrite="true"/>
+
+		<jar basedir="classes" jarfile="bin/gs.jar" overwrite="true">
 			<manifest>
 				<attribute name="Main-Class" value="jp.co.ziro.gs.Start" />
 				<attribute name="Class-Path" value="${lib.list}"/>
