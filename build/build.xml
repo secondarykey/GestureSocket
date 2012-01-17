@@ -1,0 +1,22 @@
+
+<project name="HogeBuild" default="makeJar" basedir="../">
+	
+
+	<path id="build-classpath">
+	    <fileset dir="lib">
+	        <include name="*.jar"/>
+	    </fileset>
+	</path>
+	<manifestclasspath property="lib.list" jarfile="bin/gs.jar">
+	    <classpath refid="build-classpath"/>
+	</manifestclasspath>
+	
+	<target name="makeJar" description="JARファイル作成">
+		<jar basedir="classes" jarfile="bin/gs.jar">
+			<manifest>
+				<attribute name="Main-Class" value="jp.co.ziro.gs.Start" />
+				<attribute name="Class-Path" value="${lib.list}"/>
+			</manifest>
+		</jar>
+	</target>
+</project>

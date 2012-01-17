@@ -16,7 +16,7 @@ public abstract class Tracker {
     protected float histogram[];
 	protected DepthGenerator depthGen;
 	protected UserGenerator userGen;
-    private boolean drawBackground = true;
+    private boolean drawBackground = false;
     protected Color colors[] = {Color.RED, Color.BLUE, Color.CYAN, Color.GREEN, Color.MAGENTA, Color.PINK, Color.YELLOW, Color.WHITE};
     
 	public Tracker(Context context) {
@@ -46,6 +46,7 @@ public abstract class Tracker {
             int pos = depth.position();
             short pixel = depth.get();
             short user = scene.get();
+            
     		imgbytes[3*pos] = 0;
     		imgbytes[3*pos+1] = 0;
     		imgbytes[3*pos+2] = 0;                	

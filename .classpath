@@ -12,5 +12,5 @@
 	<classpathentry kind="lib" path="lib/jetty-util-8.0.4.v20111024.jar"/>
 	<classpathentry kind="lib" path="lib/jetty-websocket-8.0.4.v20111024.jar"/>
 	<classpathentry kind="lib" path="lib/servlet-api-3.0.jar"/>
-	<classpathentry kind="output" path="bin"/>
+	<classpathentry kind="output" path="classes"/>
 </classpath>

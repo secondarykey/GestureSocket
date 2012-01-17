@@ -24,6 +24,7 @@ public enum SocketType {
 
 	private static float margin = 12;
 	private static float movement = 230;
+
 	/**
 	 * どのGestureか判別
 	 * @param modX
