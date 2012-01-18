@@ -50,9 +50,9 @@ public enum SocketType {
 		} else {
 			if ( Math.abs(modY) < (margin*7) && 
 				 Math.abs(modX) < (margin*7) ) {
-				if ( modZ < (movement*-1) ) {
+				if ( modZ < (movement*-0.5) ) {
 					type = SocketType.ZOOMIN;
-				} else if ( modZ > movement ) {
+				} else if ( modZ > (movement*0.5) ) {
 					type = SocketType.ZOOMOUT;
 				}
 			}
