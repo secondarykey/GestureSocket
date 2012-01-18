@@ -38,6 +38,8 @@ public class HandTracker extends Tracker {
 		public void update(IObservable<GestureRecognizedEventArgs> observable,
 				GestureRecognizedEventArgs args) {
 			try {
+				
+				WebSocketFactory.sendMessage(SocketType.READY.message());
 				handsGen.StartTracking(args.getEndPosition());
 				gestureGen.removeGesture("Click");
 			} catch (StatusException e) {
@@ -71,20 +73,41 @@ public class HandTracker extends Tracker {
 			float modY = endPoint.getY() - startPoint.getY();
 			float modZ = endPoint.getZ() - startPoint.getZ();
 			SocketType type = SocketType.getType(modX, modY, modZ);
+
 			if (!type.message().isEmpty()) {
-				WebSocketFactory.sendMessage(type.message());
+				if ( canSend ) {
+					WebSocketFactory.sendMessage(type.message());
+					sleep();
+				}
 			}
 		}
 	}
 
-	private int historySize = 10;
+    private static boolean canSend = true;
+    public void sleep() {
+   		canSend = false;
+    	new Timer().start();
+	}
 
+	class Timer extends Thread {
+        public void run() {
+        	try {
+				sleep(2000);
+			} catch (InterruptedException e) {
+				e.printStackTrace();
+			}
+			canSend = true;
+        }
+    }
+
+	private int historySize = 10;
 	class MyHandDestroyEvent implements IObserver<InactiveHandEventArgs> {
 		public void update(IObservable<InactiveHandEventArgs> observable,
 				InactiveHandEventArgs args) {
 			history.remove(args.getId());
 			if (history.isEmpty()) {
 				try {
+					WebSocketFactory.sendMessage(SocketType.LOST.message());
 					gestureGen.addGesture("Click");
 				} catch (StatusException e) {
 					e.printStackTrace();
@@ -132,11 +155,12 @@ public class HandTracker extends Tracker {
 			try {
 				ArrayList<Point3D> points = history.get(id);
 				g.setColor(colors[id % colors.length]);
+
 				int[] xPoints = new int[points.size()];
 				int[] yPoints = new int[points.size()];
+
 				for (int i = 0; i < points.size(); ++i) {
-					Point3D proj = depthGen.convertRealWorldToProjective(points
-							.get(i));
+					Point3D proj = depthGen.convertRealWorldToProjective(points.get(i));
 					xPoints[i] = (int) proj.getX();
 					yPoints[i] = (int) proj.getY();
 				}

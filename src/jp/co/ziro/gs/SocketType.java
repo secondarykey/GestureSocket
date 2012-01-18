@@ -22,8 +22,8 @@ public enum SocketType {
 		return this.message;
 	}
 
-	private static float margin = 12;
-	private static float movement = 230;
+	private static float margin = 20;
+	private static float movement = 300;
 
 	/**
 	 * どのGestureか判別
@@ -48,10 +48,13 @@ public enum SocketType {
 				type = SocketType.UP;
 			}
 		} else {
-			if ( modZ < (movement*-1) ) {
-				type = SocketType.ZOOMIN;
-			} else if ( modZ > movement ) {
-				type = SocketType.ZOOMOUT;
+			if ( Math.abs(modY) < (margin*7) && 
+				 Math.abs(modX) < (margin*7) ) {
+				if ( modZ < (movement*-1) ) {
+					type = SocketType.ZOOMIN;
+				} else if ( modZ > movement ) {
+					type = SocketType.ZOOMOUT;
+				}
 			}
 		}
 		return type;

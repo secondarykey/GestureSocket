@@ -18,7 +18,7 @@ public abstract class Tracker {
 	protected UserGenerator userGen;
     private boolean drawBackground = false;
     protected Color colors[] = {Color.RED, Color.BLUE, Color.CYAN, Color.GREEN, Color.MAGENTA, Color.PINK, Color.YELLOW, Color.WHITE};
-    
+
 	public Tracker(Context context) {
         try {
 			depthGen = DepthGenerator.create(context);
@@ -56,8 +56,10 @@ public abstract class Tracker {
             	if (user == 0) {
             		colorID = colors.length-1;
             	}
+
             	if (pixel != 0) {
             		float histValue = histogram[pixel];
+            		//RGBを指定
             		imgbytes[3*pos]   = (byte)(histValue*colors[colorID].getRed());
             		imgbytes[3*pos+1] = (byte)(histValue*colors[colorID].getGreen());
             		imgbytes[3*pos+2] = (byte)(histValue*colors[colorID].getBlue());

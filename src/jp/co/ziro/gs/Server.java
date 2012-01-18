@@ -23,7 +23,7 @@ public class Server extends org.eclipse.jetty.server.Server {
         ServletContextHandler root = new ServletContextHandler(this, "/", ServletContextHandler.SESSIONS);
 
         // デフォルトのWebインタフェースの設定
-        root.setResourceBase("./");
+        root.setResourceBase("./war");
         root.addServlet(DefaultServlet.class, "/*");
 
         // WebSocket 受け付ける Servlet を登録

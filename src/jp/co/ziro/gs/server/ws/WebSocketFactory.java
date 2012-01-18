@@ -55,7 +55,7 @@ public class WebSocketFactory {
     }
 
     // 抱えてる全コネクションに流す
-    public static void sendMessage(String msg) {
+    public synchronized static void sendMessage(String msg) {
     	System.out.println(msg);
     	getInstance().sendAll(msg);
     }
