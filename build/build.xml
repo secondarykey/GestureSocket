@@ -9,12 +9,13 @@
 	<manifestclasspath property="lib.list" jarfile="bin/gs.jar">
 	    <classpath refid="build-classpath"/>
 	</manifestclasspath>
-	
+
 	<target name="makeJar" description="JARファイル作成">
 		<copy file="Config.xml" todir="./bin" overwrite="true"/>
-		<copy file="index.html" todir="./bin" overwrite="true"/>
-
-		<jar basedir="classes" jarfile="bin/gs.jar" overwrite="true">
+		<copy todir="./bin/war" overwrite="true">
+		  <fileset dir="war" />
+		</copy>
+		<jar basedir="classes" jarfile="bin/gs.jar">
 			<manifest>
 				<attribute name="Main-Class" value="jp.co.ziro.gs.Start" />
 				<attribute name="Class-Path" value="${lib.list}"/>
