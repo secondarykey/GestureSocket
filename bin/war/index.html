@@ -1,0 +1,129 @@
+<!doctype html>
+<html lang="ja">
+<head>
+    <meta charset="utf-8" />
+    <title>GestureSocket Demo</title>
+    <link rel="stylesheet" href="css/impress-demo.css" /> 
+    <script type="text/javascript" src="js/jquery.min.js"></script>
+<script type="text/javascript">
+var active = null;
+$(document).ready(function() {
+
+    // WebSocket 確認
+    if (!window.WebSocket && !window.MozWebSocket) {
+        alert("WebSocket disabled!!");
+        return;
+    }
+
+    // WebSocket 初期化
+    var wsurl = "ws://"+location.host+"/ws/";
+    //var wsurl = "ws://localhost/ws/";
+    var ws = window.MozWebSocket ? new MozWebSocket(wsurl) : new WebSocket(wsurl);
+    $(window).unload(function(){ ws.close(); ws = null });
+
+    // メッセージを受けたらそのメッセージを追加
+    ws.addEventListener("message",function(msg) {
+        if (msg == null || msg.data == null) {
+          return;
+        }
+        var cmd = msg.data;
+        $("#log").innerText = cmd;
+
+		var event = {
+			keyCode : 0
+		}
+        if ( cmd == "left" ) {
+        	event.keyCode = 37;
+        } else if ( cmd == "right" ) {
+        	event.keyCode = 39;
+        } else if ( cmd == "up" ) {
+        } else if ( cmd == "down" ) {
+        } else if ( cmd == "in" ) {
+        } else if ( cmd == "out" ) {
+        } else if ( cmd == "root lost" ) {
+        } else if ( cmd == "root accept" ) {
+        } else if ( cmd == "root shutdown" ) {
+        }
+        pressKey(event);
+    }, false);
+    
+	var script = jQuery.getScript("js/impress.js");
+    // 送信ボタンでメッセージ送信
+    $("#send").click(function(e) {
+        var text = $("#text").val();
+        ws.send(text);
+        $("#text").val("");
+    });
+
+});
+
+</script>
+</head>
+
+<body>
+  <div class="commandLine">
+    <div id="log">start</div>
+    <div id="send_textbox">
+      <input type="text" id="text"></input><input type="button" id="send" value="send"></input>
+    </div>
+  </div>
+<div id="impress" class="impress-not-supported">
+
+    <div class="fallback-message">
+        <p>Your browser <b>doesn't support the features required</b> by impress.js, so you are presented with a simplified version of this presentation.</p>
+        <p>For the best experience please use the latest <b>Chrome</b> or <b>Safari</b> browser. Firefox 10 (to be released soon) will also handle it.</p>
+    </div>
+
+    <div id="title" class="step" data-x="0" data-y="0" data-scale="4">
+        <span class="try">then you should try</span>
+        <h1>impress.js<sup>*</sup></h1>
+        <span class="footnote"><sup>*</sup> no rhyme intended</span>
+    </div>
+
+    <div id="its" class="step" data-x="850" data-y="3000" data-rotate="90" data-scale="5">
+        <p>It's a <strong>presentation tool</strong> <br/>
+        inspired by the idea behind <a href="http://prezi.com">prezi.com</a> <br/>
+        and based on the <strong>power of CSS3 transforms and transitions</strong> in modern browsers.</p>
+    </div>
+
+    <div id="big" class="step" data-x="3500" data-y="2100" data-rotate="180" data-scale="6">
+        <p>visualize your <b>big</b> <span class="thoughts">thoughts</span></p>
+    </div>
+
+    <div id="tiny" class="step" data-x="2825" data-y="2325" data-z="-3000" data-rotate="300" data-scale="1">
+        <p>and <b>tiny</b> ideas</p>
+    </div>
+
+    <div id="ing" class="step" data-x="3500" data-y="-850" data-rotate="270" data-scale="6">
+        <p>by <b class="positioning">positioning</b>, <b class="rotating">rotating</b> and <b class="scaling">scaling</b> them on an infinite canvas</p>
+    </div>
+
+    <div id="imagination" class="step" data-x="6700" data-y="-300" data-scale="6">
+        <p>the only <b>limit</b> is your <b class="imagination">imagination</b></p>
+    </div>
+
+    <div id="source" class="step" data-x="6300" data-y="2000" data-rotate="20" data-scale="4">
+        <p>want to know more?</p>
+        <q><a href="http://github.com/bartaz/impress.js">use the source</a>, Luke!</q>
+    </div>
+
+    <div id="one-more-thing" class="step" data-x="6000" data-y="4000" data-scale="2">
+        <p>one more thing...</p>
+    </div>
+
+    <div id="its-in-3d" class="step" data-x="6200" data-y="4300" data-z="-100" data-rotate-x="-40" data-rotate-y="10" data-scale="2">
+        <p><span class="have">have</span> <span class="you">you</span> <span class="noticed">noticed</span> <span class="its">it's</span> <span class="in">in</span> <b>3D<sup>*</sup></b>?</p>
+        <span class="footnote">* beat that, prezi ;)</span>
+    </div>
+
+    <div id="overview" class="step" data-x="3000" data-y="1500" data-scale="10">
+    </div>
+
+</div>
+
+<div class="hint">
+    <p>Use a spacebar or arrow keys to navigate</p>
+</div>
+
+</body>
+</html>
