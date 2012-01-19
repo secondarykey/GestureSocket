@@ -12,16 +12,16 @@ import org.OpenNI.ScriptNode;
 import org.OpenNI.StatusException;
 
 import jp.co.ziro.gs.gesture.Viewer;
-
+import jp.co.ziro.gs.util.ApplicationUtil;
 
 public class Gesture extends Thread {
 
 	private Viewer viewer;
-
 	private JFrame frame;
     private Context context;
-    private final String SAMPLE_XML_FILE = "Config.xml";
+
 	public Gesture() {
+
 		initGesture();
 
 		frame.pack();
@@ -43,7 +43,7 @@ public class Gesture extends Thread {
 	private void initGesture() {
 		OutArg<ScriptNode> scriptNode = new OutArg<ScriptNode>();
         try {
-			context = Context.createFromXmlFile(SAMPLE_XML_FILE, scriptNode);
+			context = Context.createFromXmlFile(ApplicationUtil.get("gesture.config.file.path"), scriptNode);
 		} catch (GeneralException e1) {
 			e1.printStackTrace();
 		}

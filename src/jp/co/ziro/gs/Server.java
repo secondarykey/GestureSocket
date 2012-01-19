@@ -3,9 +3,11 @@ package jp.co.ziro.gs;
 import java.io.BufferedReader;
 import java.io.IOException;
 import java.io.InputStreamReader;
+import java.net.UnknownHostException;
 
 import jp.co.ziro.gs.server.ws.WSGesutureServlet;
 import jp.co.ziro.gs.server.ws.WebSocketFactory;
+import jp.co.ziro.gs.util.ApplicationUtil;
 
 import org.eclipse.jetty.servlet.DefaultServlet;
 import org.eclipse.jetty.servlet.ServletContextHandler;
@@ -15,7 +17,7 @@ public class Server extends org.eclipse.jetty.server.Server {
 
 	public Server() {
 
-		super(80);
+		super(ApplicationUtil.getInteger("server.port"));
 
         // Jetty の初期化
         setStopAtShutdown(true);
@@ -23,12 +25,18 @@ public class Server extends org.eclipse.jetty.server.Server {
         ServletContextHandler root = new ServletContextHandler(this, "/", ServletContextHandler.SESSIONS);
 
         // デフォルトのWebインタフェースの設定
-        root.setResourceBase("./war");
+        root.setResourceBase(ApplicationUtil.get("server.root.path"));
         root.addServlet(DefaultServlet.class, "/*");
 
         // WebSocket 受け付ける Servlet を登録
         ServletHolder wsh = new ServletHolder(new WSGesutureServlet());
-        root.addServlet(wsh, "/ws/*");
+        root.addServlet(wsh, ApplicationUtil.get("server.ws.url"));
+        
+        try {
+			System.out.println("server=" + java.net.InetAddress.getLocalHost().toString());
+		} catch (UnknownHostException e) {
+			e.printStackTrace();
+		}
 	}
 
 	/**

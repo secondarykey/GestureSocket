@@ -1,6 +1,5 @@
 package jp.co.ziro.gs;
 
-
 public class Start {
 
 	/**
@@ -8,17 +7,16 @@ public class Start {
 	 */
 	public static void main(String[] args) {
 
-        Server server = new Server();
         Gesture gesture = new Gesture();
-
         //other thread
    		gesture.start();
 
+        Server server = new Server();
         try {
 			server.start();
-			server.run();
 		} catch (Exception e) {
 			throw new RuntimeException("サーバ起動失敗",e);
 		}
+		server.run();
 	}
 }

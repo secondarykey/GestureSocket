@@ -28,8 +28,8 @@ import java.util.HashMap;
 import java.awt.*;
 
 import jp.co.ziro.gs.SocketType;
-import jp.co.ziro.gs.gesture.Tracker;
 import jp.co.ziro.gs.server.ws.WebSocketFactory;
+import jp.co.ziro.gs.util.ApplicationUtil;
 
 public class HandTracker extends Tracker {
 
@@ -38,10 +38,9 @@ public class HandTracker extends Tracker {
 		public void update(IObservable<GestureRecognizedEventArgs> observable,
 				GestureRecognizedEventArgs args) {
 			try {
-				
 				WebSocketFactory.sendMessage(SocketType.READY.message());
 				handsGen.StartTracking(args.getEndPosition());
-				gestureGen.removeGesture("Click");
+				gestureGen.removeGesture(ApplicationUtil.get("gesture.start"));
 			} catch (StatusException e) {
 				e.printStackTrace();
 			}
@@ -92,7 +91,7 @@ public class HandTracker extends Tracker {
 	class Timer extends Thread {
         public void run() {
         	try {
-				sleep(2000);
+				sleep(ApplicationUtil.getInteger("gesture.send.stop"));
 			} catch (InterruptedException e) {
 				e.printStackTrace();
 			}
@@ -100,7 +99,7 @@ public class HandTracker extends Tracker {
         }
     }
 
-	private int historySize = 10;
+	private static int historySize = ApplicationUtil.getInteger("gesture.history");
 	class MyHandDestroyEvent implements IObserver<InactiveHandEventArgs> {
 		public void update(IObservable<InactiveHandEventArgs> observable,
 				InactiveHandEventArgs args) {
@@ -108,7 +107,7 @@ public class HandTracker extends Tracker {
 			if (history.isEmpty()) {
 				try {
 					WebSocketFactory.sendMessage(SocketType.LOST.message());
-					gestureGen.addGesture("Click");
+					gestureGen.addGesture(ApplicationUtil.get("gesture.start"));
 				} catch (StatusException e) {
 					e.printStackTrace();
 				}
@@ -128,11 +127,11 @@ public class HandTracker extends Tracker {
 	public HandTracker(Context context) {
 
 		super(context);
+
 		try {
 			gestureGen = GestureGenerator.create(context);
-			gestureGen.addGesture("Click");
-			gestureGen.getGestureRecognizedEvent().addObserver(
-					new MyGestureRecognized());
+			gestureGen.addGesture(ApplicationUtil.get("gesture.start"));
+			gestureGen.getGestureRecognizedEvent().addObserver(new MyGestureRecognized());
 
 			handsGen = HandsGenerator.create(context);
 			handsGen.getHandCreateEvent().addObserver(new MyHandCreateEvent());
@@ -150,7 +149,6 @@ public class HandTracker extends Tracker {
 
 	@Override
 	public void draw(Graphics g) {
-
 		for (Integer id : history.keySet()) {
 			try {
 				ArrayList<Point3D> points = history.get(id);
@@ -166,9 +164,9 @@ public class HandTracker extends Tracker {
 				}
 
 				g.drawPolyline(xPoints, yPoints, points.size());
-				Point3D proj = depthGen.convertRealWorldToProjective(points
-						.get(points.size() - 1));
-				g.drawArc((int) proj.getX(), (int) proj.getY(), 5, 5, 0, 360);
+				Point3D proj = depthGen.convertRealWorldToProjective(points.get(points.size() - 1));
+				//手の円を表示
+				g.fillArc((int)proj.getX(),(int)proj.getY(),7,7,0,360);
 			} catch (StatusException e) {
 				e.printStackTrace();
 			}

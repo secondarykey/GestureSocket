@@ -32,7 +32,6 @@
 			</Query>
 			<Configuration>
 				<MapOutputMode xRes="640" yRes="480" FPS="30"/> 
-
 				<!-- Uncomment to override global mirror
 				<Mirror on="false" /> 
 				-->

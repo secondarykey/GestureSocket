@@ -2,6 +2,7 @@ OpenNI(XtionProLiveで確認)で動作するWebSocketのプログラムです。
 マイノリティ・リポートをイメージして作成しました。
 
 bin,lib をコピーして[java -jar gs.jar]で実行可能です。
+※Macではライブラリパスの指定が必要
 サンプルとして「bin/war」に簡単なローカルアプリを作成しています。
 動作するとWebSocketだけでなく、Webサーバとしても動作します。
 jmpress.jsを使用してプレゼン部分は作っています。
@@ -31,3 +32,22 @@ out：砲丸投げ
 で動作します。
 
 SocketType内に速度の設定を書いてますのでロジックをいじればOKです。
+
+各値についてapplication.propertiesを置きました。
+
+gesture.config.file.path=OpenNI用の設定ファイル
+※解像度等の変更ができます。
+
+server.port=起動するサーバのポートです。
+server.root.path=Webサーバの相対パスです。(サンプルはwarに指定しています。)
+server.ws.url=WebSocket通信用のURLです。
+
+gesture.tracker.class=ジェスチャーする用のクラス(内部用)
+gesture.history=ジェスチャーの軌跡の保存量です。
+gesture.send.stop=ジェスチャーをしてからコマンドを受け付けない秒数（ms）です。
+gesture.start=ジェスチャーを開始するOpenNI動作です(e.g. Click,Wave)
+
+gesture.margin=ジェスチャーに対する誤差の量です。
+gesture.movement=ジェスチャーとしてとらえる移動量です。
+
+

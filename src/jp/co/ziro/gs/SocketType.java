@@ -1,5 +1,7 @@
 package jp.co.ziro.gs;
 
+import jp.co.ziro.gs.util.ApplicationUtil;
+
 public enum SocketType {
 
 	LEFT("left"),
@@ -22,8 +24,8 @@ public enum SocketType {
 		return this.message;
 	}
 
-	private static float margin = 20;
-	private static float movement = 300;
+	private static float margin   = ApplicationUtil.getFloat("gesture.margin");
+	private static float movement = ApplicationUtil.getFloat("gesture.movement");
 
 	/**
 	 * どのGestureか判別
@@ -48,11 +50,11 @@ public enum SocketType {
 				type = SocketType.UP;
 			}
 		} else {
-			if ( Math.abs(modY) < (margin*7) && 
-				 Math.abs(modX) < (margin*7) ) {
-				if ( modZ < (movement*-0.5) ) {
+			if ( Math.abs(modY) < (margin*6) && 
+				 Math.abs(modX) < (margin*6) ) {
+				if ( modZ < (movement*-0.7) ) {
 					type = SocketType.ZOOMIN;
-				} else if ( modZ > (movement*0.5) ) {
+				} else if ( modZ > (movement*0.7) ) {
 					type = SocketType.ZOOMOUT;
 				}
 			}

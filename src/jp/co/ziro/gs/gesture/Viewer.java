@@ -13,15 +13,18 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
 import jp.co.ziro.gs.gesture.ni.HandTracker;
+import jp.co.ziro.gs.gesture.ni.Tracker;
 
 import org.OpenNI.Context;
 
 public class Viewer extends Component {
-
+	/**
+	 * 画面サイズ
+	 */
     private int width;
     private int height;
-	private boolean shouldRun = true;
 
+	private boolean shouldRun = true;
     private BufferedImage bimg;
     private byte[] imgbytes;
 	
@@ -48,13 +51,16 @@ public class Viewer extends Component {
     @Override
     public void paint(Graphics g) {
     	drawDepth(g);
+    	//表示を行う
     	tracker.draw(g);
     }
 
+    /**
+     * 深度を取得して再描画を行う
+     */
 	public void update() {
 		//深度部分の算出を行う
 		tracker.updateDepth(imgbytes);
-    	//再描画
     	repaint();
 	}
 
@@ -62,6 +68,10 @@ public class Viewer extends Component {
 		return shouldRun;
 	}
 
+	/**
+	 * 全体の深度を表示
+	 * @param g 描画するグラフィック
+	 */
 	public void drawDepth(Graphics g) {
         DataBufferByte dataBuffer = new DataBufferByte(imgbytes, width*height*3);
         WritableRaster raster = Raster.createInterleavedRaster(dataBuffer, width, height, width * 3, 3, new int[]{0, 1, 2}, null); 
@@ -69,5 +79,4 @@ public class Viewer extends Component {
         bimg = new BufferedImage(colorModel, raster, false, null);
         g.drawImage(bimg, 0, 0, null);
 	}
-	
 }

@@ -1,4 +1,4 @@
-package jp.co.ziro.gs.gesture;
+package jp.co.ziro.gs.gesture.ni;
 
 import java.awt.Color;
 import java.awt.Graphics;
@@ -8,21 +8,16 @@ import org.OpenNI.Context;
 import org.OpenNI.DepthGenerator;
 import org.OpenNI.DepthMetaData;
 import org.OpenNI.GeneralException;
-import org.OpenNI.SceneMetaData;
-import org.OpenNI.UserGenerator;
 
 public abstract class Tracker {
 
     protected float histogram[];
 	protected DepthGenerator depthGen;
-	protected UserGenerator userGen;
-    private boolean drawBackground = false;
-    protected Color colors[] = {Color.RED, Color.BLUE, Color.CYAN, Color.GREEN, Color.MAGENTA, Color.PINK, Color.YELLOW, Color.WHITE};
 
+    protected Color colors[] = {Color.RED, Color.BLUE, Color.CYAN, Color.GREEN, Color.MAGENTA, Color.PINK, Color.YELLOW, Color.WHITE};
 	public Tracker(Context context) {
         try {
 			depthGen = DepthGenerator.create(context);
-			userGen = UserGenerator.create(context);
 			histogram = new float[10000];
 		} catch (GeneralException e) {
 			e.printStackTrace();
@@ -33,10 +28,6 @@ public abstract class Tracker {
     	//深度を取得
         DepthMetaData depthMD = depthGen.getMetaData();
         ShortBuffer depth = depthMD.getData().createShortBuffer();
-
-        SceneMetaData sceneMD = userGen.getUserPixels(0);
-        ShortBuffer scene = sceneMD.getData().createShortBuffer();
-
         //階層をすべて取得
         calcHist(depth);
         depth.rewind();
@@ -45,26 +36,17 @@ public abstract class Tracker {
 
             int pos = depth.position();
             short pixel = depth.get();
-            short user = scene.get();
             
     		imgbytes[3*pos] = 0;
     		imgbytes[3*pos+1] = 0;
     		imgbytes[3*pos+2] = 0;                	
-
-            if (drawBackground || pixel != 0) {
-            	int colorID = user % (colors.length-1);
-            	if (user == 0) {
-            		colorID = colors.length-1;
-            	}
-
-            	if (pixel != 0) {
-            		float histValue = histogram[pixel];
-            		//RGBを指定
-            		imgbytes[3*pos]   = (byte)(histValue*colors[colorID].getRed());
-            		imgbytes[3*pos+1] = (byte)(histValue*colors[colorID].getGreen());
-            		imgbytes[3*pos+2] = (byte)(histValue*colors[colorID].getBlue());
-            	}
-            }
+           	if (pixel != 0) {
+           		float histValue = histogram[pixel];
+           		//RGBを指定
+           		imgbytes[3*pos]   = (byte)(histValue*Color.WHITE.getRed());
+           		imgbytes[3*pos+1] = (byte)(histValue*Color.WHITE.getGreen());
+           		imgbytes[3*pos+2] = (byte)(histValue*Color.WHITE.getBlue());
+           	}
         }
     }
 
