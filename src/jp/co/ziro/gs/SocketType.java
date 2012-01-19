@@ -1,5 +1,7 @@
 package jp.co.ziro.gs;
 
+import org.OpenNI.Point3D;
+
 import jp.co.ziro.gs.util.ApplicationUtil;
 
 public enum SocketType {
@@ -27,15 +29,11 @@ public enum SocketType {
 	private static float margin   = ApplicationUtil.getFloat("gesture.margin");
 	private static float movement = ApplicationUtil.getFloat("gesture.movement");
 
-	/**
-	 * どのGestureか判別
-	 * @param modX
-	 * @param modY
-	 * @param modZ
-	 * @return
-	 */
-	public static SocketType getType(float modX, float modY, float modZ) {
+	public static SocketType getType(Point3D startPoint, Point3D endPoint) {
 
+		float modX = endPoint.getX() - startPoint.getX();
+		float modY = endPoint.getY() - startPoint.getY();
+		float modZ = endPoint.getZ() - startPoint.getZ();
 		SocketType type = SocketType.NONE;
 		if ( Math.abs(modY) < margin ) {
 			if ( modX < (movement*-1) ) {

@@ -33,12 +33,15 @@ import jp.co.ziro.gs.util.ApplicationUtil;
 
 public class HandTracker extends Tracker {
 
-	class MyGestureRecognized implements IObserver<GestureRecognizedEventArgs> {
+	private static int gblhistorySize = ApplicationUtil.getInteger("gesture.history");
+	private class GestureRecognized implements IObserver<GestureRecognizedEventArgs> {
 		@Override
 		public void update(IObservable<GestureRecognizedEventArgs> observable,
 				GestureRecognizedEventArgs args) {
 			try {
+				//cmd
 				WebSocketFactory.sendMessage(SocketType.READY.message());
+
 				handsGen.StartTracking(args.getEndPosition());
 				gestureGen.removeGesture(ApplicationUtil.get("gesture.start"));
 			} catch (StatusException e) {
@@ -47,7 +50,7 @@ public class HandTracker extends Tracker {
 		}
 	}
 
-	class MyHandCreateEvent implements IObserver<ActiveHandEventArgs> {
+	private class HandCreateEvent implements IObserver<ActiveHandEventArgs> {
 		public void update(IObservable<ActiveHandEventArgs> observable,
 				ActiveHandEventArgs args) {
 			ArrayList<Point3D> newList = new ArrayList<Point3D>();
@@ -56,23 +59,19 @@ public class HandTracker extends Tracker {
 		}
 	}
 
-	class MyHandUpdateEvent implements IObserver<ActiveHandEventArgs> {
+	private class HandUpdateEvent implements IObserver<ActiveHandEventArgs> {
 		public void update(IObservable<ActiveHandEventArgs> observable,
 				ActiveHandEventArgs args) {
 			ArrayList<Point3D> historyList = history.get(args.getId());
 			historyList.add(args.getPosition());
-			while (historyList.size() > historySize) {
+			while (historyList.size() > gblhistorySize) {
 				historyList.remove(0);
 			}
 
 			Point3D startPoint = historyList.get(0);
-			Point3D endPoint = historyList.get(historyList.size() - 1);
+			Point3D endPoint   = historyList.get(historyList.size() - 1);
 
-			float modX = endPoint.getX() - startPoint.getX();
-			float modY = endPoint.getY() - startPoint.getY();
-			float modZ = endPoint.getZ() - startPoint.getZ();
-			SocketType type = SocketType.getType(modX, modY, modZ);
-
+			SocketType type = SocketType.getType(startPoint,endPoint);
 			if (!type.message().isEmpty()) {
 				if ( canSend ) {
 					WebSocketFactory.sendMessage(type.message());
@@ -81,7 +80,20 @@ public class HandTracker extends Tracker {
 			}
 		}
 	}
-
+	private class HandDestroyEvent implements IObserver<InactiveHandEventArgs> {
+		public void update(IObservable<InactiveHandEventArgs> observable,
+				InactiveHandEventArgs args) {
+			history.remove(args.getId());
+			if (history.isEmpty()) {
+				try {
+					WebSocketFactory.sendMessage(SocketType.LOST.message());
+					gestureGen.addGesture(ApplicationUtil.get("gesture.start"));
+				} catch (StatusException e) {
+					e.printStackTrace();
+				}
+			}
+		}
+	}
     private static boolean canSend = true;
     public void sleep() {
    		canSend = false;
@@ -99,21 +111,6 @@ public class HandTracker extends Tracker {
         }
     }
 
-	private static int historySize = ApplicationUtil.getInteger("gesture.history");
-	class MyHandDestroyEvent implements IObserver<InactiveHandEventArgs> {
-		public void update(IObservable<InactiveHandEventArgs> observable,
-				InactiveHandEventArgs args) {
-			history.remove(args.getId());
-			if (history.isEmpty()) {
-				try {
-					WebSocketFactory.sendMessage(SocketType.LOST.message());
-					gestureGen.addGesture(ApplicationUtil.get("gesture.start"));
-				} catch (StatusException e) {
-					e.printStackTrace();
-				}
-			}
-		}
-	}
 
 	/**
 	 * 
@@ -127,19 +124,19 @@ public class HandTracker extends Tracker {
 	public HandTracker(Context context) {
 
 		super(context);
-
 		try {
-			gestureGen = GestureGenerator.create(context);
-			gestureGen.addGesture(ApplicationUtil.get("gesture.start"));
-			gestureGen.getGestureRecognizedEvent().addObserver(new MyGestureRecognized());
-
-			handsGen = HandsGenerator.create(context);
-			handsGen.getHandCreateEvent().addObserver(new MyHandCreateEvent());
-			handsGen.getHandUpdateEvent().addObserver(new MyHandUpdateEvent());
-			handsGen.getHandDestroyEvent()
-					.addObserver(new MyHandDestroyEvent());
-
 			history = new HashMap<Integer, ArrayList<Point3D>>();
+
+			gestureGen = GestureGenerator.create(context);
+			handsGen = HandsGenerator.create(context);
+			
+			gestureGen.addGesture(ApplicationUtil.get("gesture.start"));
+			gestureGen.getGestureRecognizedEvent().addObserver(new GestureRecognized());
+			
+			handsGen.getHandCreateEvent().addObserver(new HandCreateEvent());
+			handsGen.getHandUpdateEvent().addObserver(new HandUpdateEvent());
+			handsGen.getHandDestroyEvent().addObserver(new HandDestroyEvent());
+
 
 		} catch (GeneralException e) {
 			e.printStackTrace();
@@ -149,27 +146,35 @@ public class HandTracker extends Tracker {
 
 	@Override
 	public void draw(Graphics g) {
+
 		for (Integer id : history.keySet()) {
-			try {
-				ArrayList<Point3D> points = history.get(id);
-				g.setColor(colors[id % colors.length]);
 
-				int[] xPoints = new int[points.size()];
-				int[] yPoints = new int[points.size()];
+			ArrayList<Point3D> points = history.get(id);
+			g.setColor(colors[id % colors.length]);
 
-				for (int i = 0; i < points.size(); ++i) {
-					Point3D proj = depthGen.convertRealWorldToProjective(points.get(i));
-					xPoints[i] = (int) proj.getX();
-					yPoints[i] = (int) proj.getY();
+			int[] xPoints = new int[points.size()];
+			int[] yPoints = new int[points.size()];
+
+			for (int cnt = 0; cnt < points.size(); ++cnt) {
+				Point3D point;
+				try {
+					point = depthGen.convertRealWorldToProjective(points.get(cnt));
+				} catch (StatusException e) {
+					throw new RuntimeException("ポイント取得時の例外",e);
 				}
 
-				g.drawPolyline(xPoints, yPoints, points.size());
-				Point3D proj = depthGen.convertRealWorldToProjective(points.get(points.size() - 1));
-				//手の円を表示
-				g.fillArc((int)proj.getX(),(int)proj.getY(),7,7,0,360);
-			} catch (StatusException e) {
-				e.printStackTrace();
+				//座標を配列に設定
+				xPoints[cnt] = (int)point.getX();
+				yPoints[cnt] = (int)point.getY();
+
+				if ( cnt == (points.size()-1) ) {
+					//円を描画
+					g.fillArc((int)point.getX(),(int)point.getY(),7,7,0,360);
+				}
 			}
+
+			//履歴分の線を描画する
+			g.drawPolyline(xPoints, yPoints, points.size());
 		}
 
 	}
