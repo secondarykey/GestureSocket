@@ -11,8 +11,8 @@
 	</manifestclasspath>
 
 	<target name="makeJar" description="JARファイル作成">
-		<copy file="Config.xml" todir="./bin" overwrite="true"/>
 		<!--
+		<copy file="Config.xml" todir="./bin" overwrite="true"/>
 		<copy todir="./bin/war" overwrite="true">
 		  <fileset dir="war" />
 		</copy>
