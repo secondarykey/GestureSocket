@@ -13,6 +13,7 @@ import java.awt.image.Raster;
 import java.awt.image.WritableRaster;
 
 import jp.co.ziro.gs.gesture.ni.HandTracker;
+import jp.co.ziro.gs.gesture.ni.ImageTracker;
 import jp.co.ziro.gs.gesture.ni.Tracker;
 
 import org.OpenNI.Context;
@@ -36,7 +37,7 @@ public class Viewer extends Component {
 	private static final long serialVersionUID = 1L;
 
 	public Viewer(Context context) {
-		tracker = new HandTracker(context);
+		tracker = new ImageTracker(context);
 
         width  = tracker.getWidth();
         height = tracker.getHeight();
@@ -75,7 +76,15 @@ public class Viewer extends Component {
 	public void drawDepth(Graphics g) {
         DataBufferByte dataBuffer = new DataBufferByte(imgbytes, width*height*3);
         WritableRaster raster = Raster.createInterleavedRaster(dataBuffer, width, height, width * 3, 3, new int[]{0, 1, 2}, null); 
-        ColorModel colorModel = new ComponentColorModel(ColorSpace.getInstance(ColorSpace.CS_sRGB), new int[]{8, 8, 8}, false, false, ComponentColorModel.OPAQUE, DataBuffer.TYPE_BYTE);
+        
+        ColorModel colorModel = new ComponentColorModel(
+        		ColorSpace.getInstance(ColorSpace.CS_sRGB), 
+        		new int[]{8, 8, 8}, 
+        		false, 
+        		false, 
+        		ComponentColorModel.OPAQUE, 
+        		DataBuffer.TYPE_BYTE);
+
         bimg = new BufferedImage(colorModel, raster, false, null);
         g.drawImage(bimg, 0, 0, null);
 	}

@@ -39,7 +39,34 @@
 		</Node>
 		
 		<!-- Create an image node. If it fails, continue anyway. -->
+		<Node type="Image" stopOnError="false" >
+			<Query>
+				<!-- Uncomment to filter by vendor name, product name, etc.
+				<Vendor>MyVendor inc.</Vendor>
+				<Name>MyProduct</Name>
+				<MinVersion>1.2.3.4</MinVersion>
+				<Capabilities>
+					<Capability>Cropping</Capability>
+				</Capabilities>
+				-->
+			</Query>
+			<Configuration>
+				<MapOutputMode xRes="640" yRes="480" FPS="30"/> 
+				<!-- Uncomment to override global mirror
+				<Mirror on="false" /> 
+				-->
+			</Configuration>
+		</Node>
+		
+		<!-- Create an image node. If it fails, continue anyway. -->
 		<Node type="Image" stopOnError="false" />
+
+		<!-- Uncomment nodes from here if you need them.
+		<Node type="Audio" />
+		<Node type="User" />
+		<Node type="Hands" />
+		<Node type="Gesture" />
+		<Node type="Scene" />
 
 		<!-- Uncomment nodes from here if you need them.
 		<Node type="Audio" />
