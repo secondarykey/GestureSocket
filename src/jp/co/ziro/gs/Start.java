@@ -7,7 +7,7 @@ public class Start {
 	 */
 	public static void main(String[] args) {
 
-        Gesture gesture = new Gesture();
+        GestureDisplay gesture = new GestureDisplay();
         //other thread
    		gesture.start();
 

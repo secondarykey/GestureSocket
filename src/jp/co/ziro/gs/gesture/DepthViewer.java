@@ -1,54 +1,33 @@
-package jp.co.ziro.gs.gesture.ni;
+package jp.co.ziro.gs.gesture;
 
 import java.awt.Color;
 import java.awt.Graphics;
-import java.nio.ByteBuffer;
 import java.nio.ShortBuffer;
 
 import org.OpenNI.Context;
 import org.OpenNI.DepthGenerator;
 import org.OpenNI.DepthMetaData;
 import org.OpenNI.GeneralException;
-import org.OpenNI.ImageGenerator;
-import org.OpenNI.ImageMap;
-import org.OpenNI.ImageMetaData;
 
-public abstract class Tracker {
+public class DepthViewer extends Viewer<DepthGenerator> {
 
     protected float histogram[];
-	protected DepthGenerator depthGen;
-	protected ImageGenerator imageGen;
+	/**
+	 * 
+	 */
+	private static final long serialVersionUID = 1L;
 
-    protected Color colors[] = {Color.RED, Color.BLUE, Color.CYAN, Color.GREEN, Color.MAGENTA, Color.PINK, Color.YELLOW, Color.WHITE};
-
-	public Tracker(Context context) {
-        try {
-			depthGen = DepthGenerator.create(context);
-			imageGen = ImageGenerator.create(context);
-			
-			imageGen.startGenerating();
-
-			histogram = new float[10000];
-		} catch (GeneralException e) {
-			e.printStackTrace();
-		}
+	public DepthViewer(Context context) {
+		super(context);
+		histogram = new float[10000];
 	}
 
-    public void updateDepth(byte[] imgbytes) {
+	@Override
+    public boolean createImage(Graphics g) {
 
     	//深度を取得
-        DepthMetaData depthMD = depthGen.getMetaData();
+        DepthMetaData depthMD = gen.getMetaData();
         ShortBuffer depth = depthMD.getData().createShortBuffer();
-
-		ImageMetaData imageMD = imageGen.getMetaData();
-		ImageMap imageMap = imageMD.getData();
-		
-		ByteBuffer image = imageMap.createByteBuffer();
-		while ( image.remaining() > 0 ) {
-			int pos = image.position();
-			byte pixel = image.get();
-    		imgbytes[pos] = pixel;
-		}
 
         //階層をすべて取得
         calcHist(depth);
@@ -59,18 +38,19 @@ public abstract class Tracker {
             int pos = depth.position();
             short pixel = depth.get();
     
-    		imgbytes[3*pos] = 0;
-    		imgbytes[3*pos+1] = 0;
-    		imgbytes[3*pos+2] = 0;                	
+    		imgBytes[3*pos] = 0;
+    		imgBytes[3*pos+1] = 0;
+    		imgBytes[3*pos+2] = 0;                	
 
            	if (pixel != 0) {
            		float histValue = histogram[pixel];
            		//RGBを指定
-           		imgbytes[3*pos]   = (byte)(histValue*Color.WHITE.getRed());
-           		imgbytes[3*pos+1] = (byte)(histValue*Color.WHITE.getGreen());
-           		imgbytes[3*pos+2] = (byte)(histValue*Color.WHITE.getBlue());
+           		imgBytes[3*pos]   = (byte)(histValue*Color.WHITE.getRed());
+           		imgBytes[3*pos+1] = (byte)(histValue*Color.WHITE.getGreen());
+           		imgBytes[3*pos+2] = (byte)(histValue*Color.WHITE.getBlue());
            	}
        }
+        return true;
     }
 
     private void calcHist(ShortBuffer depth) {
@@ -99,14 +79,19 @@ public abstract class Tracker {
         }
     }
 
+	@Override
     public int getWidth() {
-        DepthMetaData depthMD = depthGen.getMetaData();
+        DepthMetaData depthMD = gen.getMetaData();
         return depthMD.getFullXRes();
     }
+	@Override
     public int getHeight() {
-        DepthMetaData depthMD = depthGen.getMetaData();
+        DepthMetaData depthMD = gen.getMetaData();
         return depthMD.getFullYRes();
     }
 
-    public abstract void draw(Graphics g);
+	@Override
+	protected DepthGenerator createGenerator(Context context) throws GeneralException {
+		return DepthGenerator.create(context);
+	}
 }

@@ -19,7 +19,7 @@
  *  along with OpenNI. If not, see <http://www.gnu.org/licenses/>.           *
  *                                                                           *
  ****************************************************************************/
-package jp.co.ziro.gs.gesture.ni;
+package jp.co.ziro.gs.gesture;
 
 import org.OpenNI.*;
 
@@ -27,13 +27,15 @@ import java.util.ArrayList;
 import java.util.HashMap;
 import java.awt.*;
 
+import jp.co.ziro.gs.GestureDisplay;
 import jp.co.ziro.gs.SocketType;
 import jp.co.ziro.gs.server.ws.WebSocketFactory;
 import jp.co.ziro.gs.util.ApplicationUtil;
 
-public class HandTracker extends Tracker {
+public class HandTracker {
 
 	private static int gblhistorySize = ApplicationUtil.getInteger("gesture.history");
+	protected Color colors[] = {Color.RED, Color.BLUE, Color.CYAN, Color.GREEN, Color.MAGENTA, Color.PINK, Color.YELLOW, Color.WHITE};
 	private class GestureRecognized implements IObserver<GestureRecognizedEventArgs> {
 		@Override
 		public void update(IObservable<GestureRecognizedEventArgs> observable,
@@ -123,7 +125,6 @@ public class HandTracker extends Tracker {
 
 	public HandTracker(Context context) {
 
-		super(context);
 		try {
 			history = new HashMap<Integer, ArrayList<Point3D>>();
 
@@ -144,7 +145,6 @@ public class HandTracker extends Tracker {
 		}
 	}
 
-	@Override
 	public void draw(Graphics g) {
 
 		for (Integer id : history.keySet()) {
@@ -158,11 +158,10 @@ public class HandTracker extends Tracker {
 			for (int cnt = 0; cnt < points.size(); ++cnt) {
 				Point3D point;
 				try {
-					point = depthGen.convertRealWorldToProjective(points.get(cnt));
+					point = GestureDisplay.convertRealWorldToProjective(points.get(cnt));
 				} catch (StatusException e) {
 					throw new RuntimeException("ポイント取得時の例外",e);
 				}
-
 				//座標を配列に設定
 				xPoints[cnt] = (int)point.getX();
 				yPoints[cnt] = (int)point.getY();
